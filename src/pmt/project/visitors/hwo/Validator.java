@@ -7,7 +7,7 @@ public class Validator {
 
 //	Validation
 
-	static boolean validate(ASTNode node) {
+	public static boolean validate(ASTNode node) {
 
 		return is_personally_valid(node) && is_socially_valid(node);
 	}

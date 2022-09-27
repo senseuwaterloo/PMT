@@ -1,98 +1,92 @@
 package pmt.handlers;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 
-import pmt.project.mutator.MutantReplacement;
-import pmt.project.mutator.Mutator;
-import pmt.utilities.Utilities;
+import pmt.project.mutator.ProjectMutator;
+import pmt.project.setting.MutationSetting;
 
-public class ProjectAnalyzer {
+public class ProjectAnalyzer extends AbstractHandler {
 
-	public String str_final = "";
+	@Override
+	public Object execute(ExecutionEvent event) throws ExecutionException {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot root = workspace.getRoot();
+		IProject[] projects = root.getProjects();
 
-	public static List<MutantReplacement> myMutants = new ArrayList<>();
+		detectInProjects(projects);
 
-	public Mutator my_mutator;
-
-	public void projectFinder(IProject project) throws JavaModelException {
-
-		IPackageFragment[] packages = JavaCore.create(project).getPackageFragments();
-		my_mutator = new Mutator();
-		search_in_packages(packages);
-
-//		try {
-//			print_mutants();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
+		return null;
 	}
 
-	private void search_in_packages(IPackageFragment[] packages) throws JavaModelException {
+	private void detectInProjects(IProject[] projects) {
 
-		for (IPackageFragment mypackage : packages) {
-			String package_path = mypackage.getPath().toString();
-			if (!pmt.project.setting.ToolSettings.including_junit_tests) {
-				if (package_path.contains("/test/"))
-					continue;
-			}
-			if (!pmt.project.setting.ToolSettings.including_jmh_tests) {
-				if (package_path.contains("/jmh/"))
-					continue;
-			}
+		for (IProject project : projects) {
+			if (!project.getName().toString().equals(pmt.project.setting.ProjectSetting.project_name))
+				continue;
 
-			find_target_files(mypackage);
+			ProjectMutator project_mutator = new ProjectMutator();
+//			MutationSetting.logging=true;
+//			try {
+//
+//				project_mutator.search_in_projects(project);
+//				project_mutator.appendDependencies(project);
+//
+//			} catch (JavaModelException | IOException e) {
+//				e.printStackTrace();
+//			}
+//			MutationSetting.logging=false;
+
+//			Build and run the project to find mutant_count.csv
+//			project_logger = new ProjectLogger();
+//
+//			try {
+//
+//			project_mutator.search_in_projects(project);
+//
+//			} catch (JavaModelException e) {
+//				e.printStackTrace();
+//			}
+
+			project_mutator = new ProjectMutator();
+			MutationSetting.mutating = true;
+			try {
+
+				project_mutator.search_in_projects(project);
+
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+			}
+			MutationSetting.mutating = false;
+
+//			run benchmarks
+//			project_logger = new ProjectLogger();
+//
+//			try {
+//
+//			project_mutator.search_in_projects(project);
+//
+//			} catch (JavaModelException e) {
+//				e.printStackTrace();
+//			}
+
+//			evaluations
+//			project_logger = new ProjectLogger();
+//
+//			try {
+//
+//			project_mutator.search_in_projects(project);
+//
+//			} catch (JavaModelException e) {
+//				e.printStackTrace();
+//			}
 
 		}
-
 	}
-
-	private void find_target_files(IPackageFragment packageFragment) throws JavaModelException {
-		for (ICompilationUnit unit : packageFragment.getCompilationUnits()) {
-			String className = unit.getElementName().toString();
-			boolean target_class = false;
-			if (pmt.project.setting.ClassSetting.class_name.equals("")) {
-				target_class = true;
-			} else if (pmt.project.setting.ClassSetting.class_name.equals(className)) {
-				target_class = true;
-			}
-
-			if (target_class) {
-				CompilationUnit parsedCompilationUnit = Utilities.parse_ICompilationUnit(unit);
-
-				my_mutator.create_mutants(packageFragment, unit, parsedCompilationUnit);
-			}
-
-		}
-	}
-
-	private void print_mutants() throws IOException {
-		FileWriter file_writer = new FileWriter("/Users/massi/Desktop/mutants.csv");
-		StringBuilder sb = new StringBuilder();
-		for (MutantReplacement a : myMutants) {
-
-			String finalString = Integer.toString(myMutants.indexOf(a) + 1) + "," + a.className.replace(".java", "")
-					+ "." + a.methodName + "." + a.line;
-
-			sb.append(finalString);
-			sb.append("\n");
-
-		}
-		file_writer.write(sb.toString());
-		file_writer.close();
-//		System.out.println(Integer.toString(myMutants.size()));
-
-	}
-
 }

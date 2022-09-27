@@ -10,7 +10,7 @@ public class MutantReplacement {
 	public String line;
 	public String position;
 	public int mutant_hash;
-	
+
 	public MutantReplacement(String node, String className, String methodName, String typeName, String line, String position) {
 		this.node=node;
 		this.className=className;
@@ -23,6 +23,6 @@ public class MutantReplacement {
 	public int get_hash() {
 		String str_hash=className+methodName+node.toString()+line+position;
 		return str_hash.hashCode();
-		
+
 	}
 }

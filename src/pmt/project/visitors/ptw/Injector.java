@@ -18,9 +18,9 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 
-import pmt.handlers.ProjectAnalyzer;
 import pmt.project.mutator.MutantReplacement;
-
+import pmt.project.mutator.ProjectMutator;
+import pmt.project.visitors.template.Handler;
 
 public class Injector {
 	public Handler myParent;
@@ -38,13 +38,24 @@ public class Injector {
 		Visitor.str_wrapper = Utilities.extractWrapperType(Validator.typeName);
 		Visitor.str_primitiveValue = Validator.typeName + "Value";
 
+		MethodInvocation replacement = build_replacement_node(node, myParent.rewriter.getAST());
+		myParent.rewriter.replace(node, replacement, null);
+
+	}
+
+	@SuppressWarnings("unchecked")
+	void inject_mutant_logger_to_ast_rewriter(ASTNode node)
+			throws JavaModelException, MalformedTreeException, BadLocationException, IOException {
+		Visitor.str_wrapper = Utilities.extractWrapperType(Validator.typeName);
+		Visitor.str_primitiveValue = Validator.typeName + "Value";
+
 		MutantReplacement myReplacement = logging_mutants(node);
 
-		ProjectAnalyzer.myMutants.add(myReplacement);
+		ProjectMutator.myMutants.add(myReplacement);
 
-
-			MethodInvocation replacement = (MethodInvocation)build_logging_node(node, myParent.rewriter.getAST(),myReplacement);
-		myParent.rewriter.replace(node,replacement , null);
+		MethodInvocation replacement = (MethodInvocation) build_logging_node(node, myParent.rewriter.getAST(),
+				myReplacement);
+		myParent.rewriter.replace(node, replacement, null);
 
 	}
 
@@ -91,7 +102,7 @@ public class Injector {
 			InfixExpression myNode = (InfixExpression) ASTNode.copySubtree(myParent.rewriter.getAST(), node);
 			invocation.arguments().add(myNode);
 		}
-		invocation.arguments().add(ast.newNumberLiteral(Integer.toString(replacement.get_hash())));
+		invocation.arguments().add(ast.newNumberLiteral(Integer.toString(ProjectMutator.myMutants.size())));
 
 		return invocation;
 
@@ -99,8 +110,8 @@ public class Injector {
 
 	private MutantReplacement logging_mutants(ASTNode node) {
 		// loggin mutants
-		String className = myParent.visitor.unit.getPath().toString().replace("/rxjava/src/main/java/", "").replaceAll("/",
-				".");
+		String className = myParent.visitor.unit.getPath().toString().replace("/rxjava/src/main/java/", "")
+				.replaceAll("/", ".");
 		String methodName = "";
 		if (pmt.utilities.Utilities.findParentMethodDeclaration(node) instanceof MethodDeclaration) {
 			MethodDeclaration myMethod = (MethodDeclaration) pmt.utilities.Utilities.findParentMethodDeclaration(node);

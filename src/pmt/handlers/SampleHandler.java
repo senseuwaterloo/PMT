@@ -18,7 +18,7 @@ public class SampleHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		SampleHandler.myConsole = findConsole(CONSOLE_NAME);
 		SampleHandler.out = myConsole.newMessageStream();
-		WorkspaceAnalyzer detectException = new WorkspaceAnalyzer();
+		ProjectAnalyzer detectException = new ProjectAnalyzer();
 		detectException.execute(event);
 		return null;
 	}

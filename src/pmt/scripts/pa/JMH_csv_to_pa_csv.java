@@ -2,21 +2,16 @@ package pmt.scripts.pa;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class JMH_csv_to_pa_csv {
 
@@ -33,7 +28,7 @@ public class JMH_csv_to_pa_csv {
 	}
 
 	private static void generate_pa_csv() throws IOException, FileNotFoundException {
-		Map<String, List<Double>> myMap = new HashMap<String, List<Double>>();
+		Map<String, List<Double>> myMap = new HashMap<>();
 		List<List<String>> records = new ArrayList<>();
 
 		try (BufferedReader br = new BufferedReader(new FileReader(path_to_original_csv))) {

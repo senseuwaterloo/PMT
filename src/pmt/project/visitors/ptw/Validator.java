@@ -1,5 +1,8 @@
 package pmt.project.visitors.ptw;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
@@ -14,7 +17,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class Validator {
-
+	public static List<String> primitiveList=Arrays.asList("int","short","long","boolean","double","float");
 	public static String typeName = "";
 //	Validation
 
@@ -185,7 +188,7 @@ public class Validator {
 			}
 		}
 
-		if (!typeName.isEmpty() && Handler.primitive_wrapper_list.primitiveList.contains(typeName)) {
+		if (!typeName.isEmpty() && primitiveList.contains(typeName)) {
 
 			return true;
 
